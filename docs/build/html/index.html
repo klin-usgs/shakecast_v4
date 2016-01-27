@@ -1,0 +1,639 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ShakeCast V4 (pyCast) Developer’s Documentation &mdash; pyCast 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyCast 1 documentation" href="#" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="shakecast-v4-pycast-developer-s-documentation">
+<h1>ShakeCast V4 (pyCast) Developer&#8217;s Documentation<a class="headerlink" href="#shakecast-v4-pycast-developer-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:
+.. automodule:: app.objects
+.. automodule:: app.functions
+.. automodule:: app.functions_util
+.. automodule:: dbi.db_alchemy
+.. automodule:: dbi.db_util
+.. automodule:: app.server
+.. automodule:: app.task
+.. automodule:: app.newthread
+.. automodule:: ui</p>
+<div class="section" id="module-app.objects">
+<span id="objects"></span><h2>Objects<a class="headerlink" href="#module-app.objects" title="Permalink to this headline">¶</a></h2>
+<p>This program holds all the non-database objects used necessary for
+ShakeCast to run. These objects are used in the functions.py program</p>
+<dl class="class">
+<dt id="app.objects.Mailer">
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Mailer</code><a class="headerlink" href="#app.objects.Mailer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps track of information used to send emails</p>
+<dl class="method">
+<dt id="app.objects.Mailer.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>msg=None</em>, <em>you=[]</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Mailer.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an email (msg) to specified addresses (you) using SMTP
+server details associated with the object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.objects.Point">
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Point</code><a class="headerlink" href="#app.objects.Point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps track of shaking data associated with a location. A list of
+these is made in the SM_Grid class and can be sorted by a metric
+using the SM_Grid.sort_by method</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="app.objects.Product_Grabber">
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Product_Grabber</code><span class="sig-paren">(</span><em>req_products=['grid.xml', 'stationlist.xml', 'intensity.jpg', 'info.xml', 'ii_overlay.png'], data_dir=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Product_Grabber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Able to access the USGS web, download products, and make entries
+in the database</p>
+<dl class="method">
+<dt id="app.objects.Product_Grabber.get_data_path">
+<code class="descname">get_data_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Product_Grabber.get_data_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the path to the data folder and sets the self.data_dir
+property</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.Product_Grabber.get_json_feed">
+<code class="descname">get_json_feed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Product_Grabber.get_json_feed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pulls json feed from USGS web and sets the self.json_feed
+variable. Also makes a list of the earthquakes&#8217; IDs</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.Product_Grabber.get_new_events">
+<code class="descname">get_new_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Product_Grabber.get_new_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the json feed for new earthquakes. Currently only looks
+for earthquakes with ShakeMaps, but this behavior may want want
+to be changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.objects.SM_Grid">
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">SM_Grid</code><span class="sig-paren">(</span><em>lon_min=0</em>, <em>lon_max=0</em>, <em>lat_min=0</em>, <em>lat_max=0</em>, <em>nom_lon_spacing=0</em>, <em>nom_lat_spacing=0</em>, <em>num_lon=0</em>, <em>num_lat=0</em>, <em>event_id=''</em>, <em>magnitude=0</em>, <em>depth=0</em>, <em>lat=0</em>, <em>lon=0</em>, <em>description=''</em>, <em>directory_name=''</em>, <em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SM_Grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object that reads a grid.xml file and compares shaking data with
+input from user data</p>
+<dl class="method">
+<dt id="app.objects.SM_Grid.in_grid">
+<code class="descname">in_grid</code><span class="sig-paren">(</span><em>lon_min=0</em>, <em>lon_max=0</em>, <em>lat_min=0</em>, <em>lat_max=0</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SM_Grid.in_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a point is within the boundaries of the grid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.SM_Grid.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>file_=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SM_Grid.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from a specified grid.xml file into the object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.SM_Grid.max_shaking">
+<code class="descname">max_shaking</code><span class="sig-paren">(</span><em>lon_min=0</em>, <em>lon_max=0</em>, <em>lat_min=0</em>, <em>lat_max=0</em>, <em>metric=None</em>, <em>facility=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SM_Grid.max_shaking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will return a float with the largest shaking in a specified
+region. If no grid points are found within the region, the
+region is made larger until a point is present</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.SM_Grid.sort_grid">
+<code class="descname">sort_grid</code><span class="sig-paren">(</span><em>metric=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SM_Grid.sort_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts the grid by a specified metric</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.functions">
+<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-app.functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="app.functions.add_facs_to_groups">
+<code class="descclassname">app.functions.</code><code class="descname">add_facs_to_groups</code><span class="sig-paren">(</span><em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.add_facs_to_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Associate all groups with the facilities that fall inside their
+monitoring region</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.add_users_to_groups">
+<code class="descclassname">app.functions.</code><code class="descname">add_users_to_groups</code><span class="sig-paren">(</span><em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.add_users_to_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect all existing groups to users who have joined that group.
+This info is saved in the user&#8217;s group_string, so we can add
+groups after users have already been uploaded</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.check_new_shakemaps">
+<code class="descclassname">app.functions.</code><code class="descname">check_new_shakemaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.check_new_shakemaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search database for unprocessed shakemaps</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.create_fac">
+<code class="descclassname">app.functions.</code><code class="descname">create_fac</code><span class="sig-paren">(</span><em>grid=None</em>, <em>fac_id='AUTO_GENERATED'</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.create_fac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a facility that is inside of a grid with generic fragility</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.geo_json">
+<code class="descclassname">app.functions.</code><code class="descname">geo_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.geo_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get earthquake feed from USGS and check for new earthquakes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.import_facility_xml">
+<code class="descclassname">app.functions.</code><code class="descname">import_facility_xml</code><span class="sig-paren">(</span><em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.import_facility_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import an XML file created by the ShakeCast workbook; Facilities</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.import_group_xml">
+<code class="descclassname">app.functions.</code><code class="descname">import_group_xml</code><span class="sig-paren">(</span><em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.import_group_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import an XML file created by the ShakeCast workbook; Groups</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.import_user_xml">
+<code class="descclassname">app.functions.</code><code class="descname">import_user_xml</code><span class="sig-paren">(</span><em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.import_user_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import an XML file created by the ShakeCast workbook; Users</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.inspection_notification">
+<code class="descclassname">app.functions.</code><code class="descname">inspection_notification</code><span class="sig-paren">(</span><em>notification=&lt;app.dbi.db_alchemy.Notification object&gt;</em>, <em>grid=&lt;app.objects.SM_Grid object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.inspection_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using an existing notificaiton and shakemap grid, create an email
+notification and send it: inspection notification</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.make_inspection_prios">
+<code class="descclassname">app.functions.</code><code class="descname">make_inspection_prios</code><span class="sig-paren">(</span><em>facility=Facility(facility_id=None</em>, <em>facility_type=None</em>, <em>name=None</em>, <em>short_name=None</em>, <em>description=None</em>, <em>lat_min=None</em>, <em>lat_max=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>grey=None</em>, <em>green=None</em>, <em>yellow=None</em>, <em>orange=None</em>, <em>red=None</em>, <em>grey_beta=None</em>, <em>green_beta=None</em>, <em>yellow_beta=None</em>, <em>orange_beta=None</em>, <em>red_beta=None</em>, <em>metric=None)</em>, <em>shakemap=ShakeMap(shakemap_id=None</em>, <em>status=None</em>, <em>map_status=None</em>, <em>event_id=None</em>, <em>event_version=None</em>, <em>generating_server=None</em>, <em>region=None</em>, <em>lat_min=None</em>, <em>lat_max=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>generation_timestamp=None</em>, <em>recieve_timestamp=None</em>, <em>begin_timestamp=None</em>, <em>end_timestamp=None</em>, <em>superceded_timestamp=None</em>, <em>directory_name=None)</em>, <em>grid=&lt;app.objects.SM_Grid object&gt;</em>, <em>notifications=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.make_inspection_prios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines inspection priorities for the input facility</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.process_shakemaps">
+<code class="descclassname">app.functions.</code><code class="descname">process_shakemaps</code><span class="sig-paren">(</span><em>shakemaps=[]</em>, <em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.process_shakemaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process or reprocess the shakemaps passed into the function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.run_scenario">
+<code class="descclassname">app.functions.</code><code class="descname">run_scenario</code><span class="sig-paren">(</span><em>eq=''</em>, <em>version=0</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.run_scenario" title="Permalink to this definition">¶</a></dt>
+<dd><p>Have pyCast process a specific event, submitted by a user</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.send_notifications">
+<code class="descclassname">app.functions.</code><code class="descname">send_notifications</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.send_notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resend notifications that failed for some reason before</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.functions_util">
+<span id="functions-utility"></span><h2>Functions Utility<a class="headerlink" href="#module-app.functions_util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="app.functions_util.closest">
+<code class="descclassname">app.functions_util.</code><code class="descname">closest</code><span class="sig-paren">(</span><em>lst=[]</em>, <em>Number=0</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions_util.closest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the closest number in a list</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions_util.get_delim">
+<code class="descclassname">app.functions_util.</code><code class="descname">get_delim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions_util.get_delim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns which delimeter is appropriate for the operating system</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions_util.sc_dir">
+<code class="descclassname">app.functions_util.</code><code class="descname">sc_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions_util.sc_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the path of the sc directory for the shakecast application</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-dbi.db_alchemy">
+<span id="database-api"></span><h1>Database API<a class="headerlink" href="#module-dbi.db_alchemy" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-dbi.db_util"></span><dl class="function">
+<dt id="dbi.db_util.closest">
+<code class="descclassname">dbi.db_util.</code><code class="descname">closest</code><span class="sig-paren">(</span><em>lst=[]</em>, <em>Number=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dbi.db_util.closest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the closest number in a list</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dbi.db_util.get_delim">
+<code class="descclassname">dbi.db_util.</code><code class="descname">get_delim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dbi.db_util.get_delim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns which delimeter is appropriate for the operating system</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-app.server">
+<span id="server-documentation"></span><h1>Server Documentation<a class="headerlink" href="#module-app.server" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="app.server.Server">
+<em class="property">class </em><code class="descclassname">app.server.</code><code class="descname">Server</code><a class="headerlink" href="#app.server.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ShakeCast server is essentially the &#8220;conductor&#8221; of the system.
+It keeps track of which functions (Tasks) are supposed to run and
+when. It provides an API that can be utilized through the CLI
+and eventually the GUI.</p>
+<dl class="docutils">
+<dt>API: {&#8216;name_of_task&#8217;: {&#8216;func&#8217;: name_of_function,</dt>
+<dd>&#8216;loop&#8217;: True/False,
+&#8216;interval&#8217;: int (duration between looping runs),
+&#8216;args_in&#8217;: kwargs,
+&#8216;db_use&#8217;: True/False}}</dd>
+</dl>
+<p>name_of_function must be a function in the functions module or a
+method of the Server</p>
+<dl class="method">
+<dt id="app.server.Server.check_task">
+<code class="descname">check_task</code><span class="sig-paren">(</span><em>task=  new_task(id: None</em>, <em>arguments: None</em>, <em>loop: False</em>, <em>interval: 100</em>, <em>db_use: False) status: stopped</em><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.check_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the output from a finished task and determines whether
+the task should be removed from the queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.cleanup">
+<code class="descname">cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove tasks that have completed their work and the connections
+associated with them</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.handle_client">
+<code class="descname">handle_client</code><span class="sig-paren">(</span><em>conn=None</em>, <em>addr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.handle_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run when a connection has been extablished. Looking for a
+message through the connected socket</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.info">
+<code class="descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns what the server is &#8216;doing&#8217;. Can be used to send the UI
+info about the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.log">
+<code class="descname">log</code><span class="sig-paren">(</span><em>message=''</em>, <em>which=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs a message to either the shakecast or server log</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.loop">
+<code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the server loop, and contains the code that is looped by
+the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.make_print">
+<code class="descname">make_print</code><span class="sig-paren">(</span><em>add_str</em><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.make_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new string onto the output string from the server. It
+loops at 15 lines for the print statement</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.queue_check">
+<code class="descname">queue_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.queue_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for tasks that are ready to be run and finished tasks
+that can be removed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.shutdown">
+<code class="descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shuts down the server allowing currently running tasks to
+finish</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.socket_check">
+<code class="descname">socket_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.socket_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if any connections have been established</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.socket_setup">
+<code class="descname">socket_setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.socket_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects the server to a specific socket</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop server loop; It will be restarted immediately. This
+functionality could be used to reload functions in the event
+of an update</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.stop_task">
+<code class="descname">stop_task</code><span class="sig-paren">(</span><em>task_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.stop_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a looping task&#8217;s status to &#8216;Finished&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.talk">
+<code class="descname">talk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.talk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a monitoring message from the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.ui_exit">
+<code class="descname">ui_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.ui_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if the server should shutdown when the UI exits</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.server.Server.user_in">
+<code class="descname">user_in</code><span class="sig-paren">(</span><em>data=None</em>, <em>conn=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.server.Server.user_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpret the message that is received by the server</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-app.task"></span><dl class="class">
+<dt id="app.task.Task">
+<em class="property">class </em><code class="descclassname">app.task.</code><code class="descname">Task</code><span class="sig-paren">(</span><em>name='new_task'</em>, <em>task_id=None</em>, <em>func=None</em>, <em>conn=None</em>, <em>args_in=None</em>, <em>loop=False</em>, <em>interval=100</em>, <em>run_in=0</em>, <em>kill_time=None</em>, <em>db_use=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.task.Task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task objects are used to simplify running specific functions with
+specific conditions. A Task is an object that track of a function
+and the parameters under which it should be run. This is an easy
+way to put functions in a queue and let them run later.</p>
+</dd></dl>
+
+<span class="target" id="module-app.newthread"></span><dl class="class">
+<dt id="app.newthread.New_Thread">
+<em class="property">class </em><code class="descclassname">app.newthread.</code><code class="descname">New_Thread</code><span class="sig-paren">(</span><em>func</em>, <em>args_in=None</em>, <em>loop=False</em>, <em>loop_time=5</em>, <em>use_pdb=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>A New_Thread is built from a threading.thread with the added
+functionality of looping and intuitive argument passing</p>
+<p>Usage:
+new_thread = New_Thread(func=func, args_in=kwargs)
+new_thread.start()</p>
+<dl class="attribute">
+<dt id="app.newthread.New_Thread.daemon">
+<code class="descname">daemon</code><a class="headerlink" href="#app.newthread.New_Thread.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean value indicating whether this thread is a daemon thread (True) or not (False).</p>
+<p>This must be set before start() is called, otherwise RuntimeError is
+raised. Its initial value is inherited from the creating thread; the
+main thread is not a daemon thread and therefore all threads created in
+the main thread default to daemon = False.</p>
+<p>The entire Python program exits when no alive non-daemon threads are
+left.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.newthread.New_Thread.ident">
+<code class="descname">ident</code><a class="headerlink" href="#app.newthread.New_Thread.ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thread identifier of this thread or None if it has not been started.</p>
+<p>This is a nonzero integer. See the thread.get_ident() function. Thread
+identifiers may be recycled when a thread exits and another thread is
+created. The identifier is available even after the thread has exited.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.newthread.New_Thread.isAlive">
+<code class="descname">isAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread.isAlive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the thread is alive.</p>
+<p>This method returns True just before the run() method starts until just
+after the run() method terminates. The module function enumerate()
+returns a list of all alive threads.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.newthread.New_Thread.is_alive">
+<code class="descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the thread is alive.</p>
+<p>This method returns True just before the run() method starts until just
+after the run() method terminates. The module function enumerate()
+returns a list of all alive threads.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.newthread.New_Thread.join">
+<code class="descname">join</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until the thread terminates.</p>
+<p>This blocks the calling thread until the thread whose join() method is
+called terminates &#8211; either normally or through an unhandled exception
+or until the optional timeout occurs.</p>
+<p>When the timeout argument is present and not None, it should be a
+floating point number specifying a timeout for the operation in seconds
+(or fractions thereof). As join() always returns None, you must call
+isAlive() after join() to decide whether a timeout happened &#8211; if the
+thread is still alive, the join() call timed out.</p>
+<p>When the timeout argument is not present or None, the operation will
+block until the thread terminates.</p>
+<p>A thread can be join()ed many times.</p>
+<p>join() raises a RuntimeError if an attempt is made to join the current
+thread as that would cause a deadlock. It is also an error to join() a
+thread before it has been started and attempts to do so raises the same
+exception.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.newthread.New_Thread.name">
+<code class="descname">name</code><a class="headerlink" href="#app.newthread.New_Thread.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string used for identification purposes only.</p>
+<p>It has no semantics. Multiple threads may be given the same name. The
+initial name is set by the constructor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.newthread.New_Thread.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function that is run when new_thread.start() is called</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.newthread.New_Thread.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the thread&#8217;s activity.</p>
+<p>It must be called at most once per thread object. It arranges for the
+object&#8217;s run() method to be invoked in a separate thread of control.</p>
+<p>This method will raise a RuntimeError if called more than once on the
+same thread object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.newthread.New_Thread.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop a looping thread</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ui">
+<span id="cli-documentation"></span><h1>CLI Documentation<a class="headerlink" href="#module-ui" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="ui.UI">
+<em class="property">class </em><code class="descclassname">ui.</code><code class="descname">UI</code><a class="headerlink" href="#ui.UI" title="Permalink to this definition">¶</a></dt>
+<dd><p>A command line interface to interact with the ShakeCast server.</p>
+<dl class="docutils">
+<dt>Commands:</dt>
+<dd><dl class="first last docutils">
+<dt>info</dt>
+<dd>Gets information from the server about the Tasks it&#8217;s
+currently running</dd>
+<dt>stop_task &lt;task_name&gt;</dt>
+<dd>Sets the specified Task status to &#8216;Finished&#8217; to
+remove it from the Server&#8217;s queue</dd>
+<dt>exit</dt>
+<dd>Exits the CLI; this will not shutdown the Server unless
+the Server was started within the UI</dd>
+<dt>shutdown</dt>
+<dd>Shuts the server down allowing running tasks to finish</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="ui.UI.connect_to_server">
+<code class="descname">connect_to_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.connect_to_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to connect to the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.get_input">
+<code class="descname">get_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.get_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for input from the user and determines when to send
+input to the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.get_message">
+<code class="descname">get_message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.get_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive a message from the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.get_message_loop">
+<code class="descname">get_message_loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.get_message_loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and print a message from the Server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends an input message to the Server. This is where the
+hard-wired commands are translated into the Server API</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.server_check">
+<code class="descname">server_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.server_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check our connection to the Server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the CLI loop</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ui.UI.start_server">
+<code class="descname">start_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ui.UI.start_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a Server if there isn&#8217;t one running</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ShakeCast V4 (pyCast) Developer&#8217;s Documentation</a><ul>
+<li><a class="reference internal" href="#module-app.objects">Objects</a></li>
+<li><a class="reference internal" href="#module-app.functions">Functions</a></li>
+<li><a class="reference internal" href="#module-app.functions_util">Functions Utility</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dbi.db_alchemy">Database API</a></li>
+<li><a class="reference internal" href="#module-app.server">Server Documentation</a></li>
+<li><a class="reference internal" href="#module-ui">CLI Documentation</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Daniel Slosky.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/index.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
