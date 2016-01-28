@@ -40,6 +40,30 @@
 <span id="shakecast-v4-pycast-developer-s-documentation"></span><h1>ShakeCast V4 (pyCast) Developer&#8217;s Documentation<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h1>
 <p>This app package contains all the code written for pyCast
 (ShakeCast V4).</p>
+<dl class="docutils">
+<dt>Start the application after pulling from source:</dt>
+<dd><p class="first">1. Start the server</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd /some/dir/shakecast_v4/sc/app/
+$ python server.py
+</pre></div>
+</div>
+<p>2. Start the CLI</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd /some/dir/shakecast_v4/sc/        
+$ python ui.py
+</pre></div>
+</div>
+<p>3. Start USGS monitor (geo_json) and shakemap monitor (check_new_shakemaps) from within the CLI:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ShakeCast</span><span class="o">&gt;</span> <span class="n">start</span>
+</pre></div>
+</div>
+<p>4. Upload user data from within CLI: (API under construction and <em>not ready for use</em>)</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="n">ShakeCast</span><span class="o">&gt;</span> <span class="n">import_facility_xml</span> <span class="o">/</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">facility_file</span><span class="o">.</span><span class="n">xml</span>
+<span class="n">ShakeCast</span><span class="o">&gt;</span> <span class="n">import_group_xml</span> <span class="o">/</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">group_file</span><span class="o">.</span><span class="n">xml</span>
+<span class="n">ShakeCast</span><span class="o">&gt;</span> <span class="n">import_user_xml</span> <span class="o">/</span><span class="n">full</span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">user_file</span><span class="o">.</span><span class="n">xml</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 <div class="section" id="module-app.objects">
 <span id="objects"></span><h2>Objects<a class="headerlink" href="#module-app.objects" title="Permalink to this headline">¶</a></h2>
 <p>This program holds all the non-database objects used necessary for
@@ -404,9 +428,11 @@ way to put functions in a queue and let them run later.</p>
 <em class="property">class </em><code class="descclassname">app.newthread.</code><code class="descname">New_Thread</code><span class="sig-paren">(</span><em>func</em>, <em>args_in=None</em>, <em>loop=False</em>, <em>loop_time=5</em>, <em>use_pdb=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread" title="Permalink to this definition">¶</a></dt>
 <dd><p>A New_Thread is built from a threading.thread with the added
 functionality of looping and intuitive argument passing</p>
-<p>Usage:
-new_thread = New_Thread(func=func, args_in=kwargs)
-new_thread.start()</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="go">&gt;&gt;&gt;new_thread = New_Thread(func=func, args_in=kwargs)</span>
+<span class="go">&gt;&gt;&gt;new_thread.start()</span>
+</pre></div>
+</div>
 <dl class="attribute">
 <dt id="app.newthread.New_Thread.daemon">
 <code class="descname">daemon</code><a class="headerlink" href="#app.newthread.New_Thread.daemon" title="Permalink to this definition">¶</a></dt>
