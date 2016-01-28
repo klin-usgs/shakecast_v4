@@ -36,18 +36,10 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="shakecast-v4-pycast-developer-s-documentation">
-<h1>ShakeCast V4 (pyCast) Developer&#8217;s Documentation<a class="headerlink" href="#shakecast-v4-pycast-developer-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:
-.. automodule:: app.objects
-.. automodule:: app.functions
-.. automodule:: app.functions_util
-.. automodule:: dbi.db_alchemy
-.. automodule:: dbi.db_util
-.. automodule:: app.server
-.. automodule:: app.task
-.. automodule:: app.newthread
-.. automodule:: ui</p>
+  <div class="section" id="module-app">
+<span id="shakecast-v4-pycast-developer-s-documentation"></span><h1>ShakeCast V4 (pyCast) Developer&#8217;s Documentation<a class="headerlink" href="#module-app" title="Permalink to this headline">¶</a></h1>
+<p>This app package contains all the code written for pyCast
+(ShakeCast V4).</p>
 <div class="section" id="module-app.objects">
 <span id="objects"></span><h2>Objects<a class="headerlink" href="#module-app.objects" title="Permalink to this headline">¶</a></h2>
 <p>This program holds all the non-database objects used necessary for
@@ -243,9 +235,14 @@ notification and send it: inspection notification</p>
 
 </div>
 </div>
+<div class="section" id="database-api">
+<h1>Database API<a class="headerlink" href="#database-api" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-dbi.db_alchemy">
-<span id="database-api"></span><h1>Database API<a class="headerlink" href="#module-dbi.db_alchemy" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-dbi.db_util"></span><dl class="function">
+<span id="sqlalchemy-objects"></span><h2>SQLAlchemy Objects<a class="headerlink" href="#module-dbi.db_alchemy" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dbi.db_util">
+<span id="dbi-utility"></span><h2>DBI Utility<a class="headerlink" href="#module-dbi.db_util" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
 <dt id="dbi.db_util.closest">
 <code class="descclassname">dbi.db_util.</code><code class="descname">closest</code><span class="sig-paren">(</span><em>lst=[]</em>, <em>Number=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dbi.db_util.closest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the closest number in a list</p>
@@ -258,8 +255,11 @@ notification and send it: inspection notification</p>
 </dd></dl>
 
 </div>
+</div>
+<div class="section" id="server-documentation">
+<h1>Server Documentation<a class="headerlink" href="#server-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-app.server">
-<span id="server-documentation"></span><h1>Server Documentation<a class="headerlink" href="#module-app.server" title="Permalink to this headline">¶</a></h1>
+<span id="server"></span><h2>Server<a class="headerlink" href="#module-app.server" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="app.server.Server">
 <em class="property">class </em><code class="descclassname">app.server.</code><code class="descname">Server</code><a class="headerlink" href="#app.server.Server" title="Permalink to this definition">¶</a></dt>
@@ -384,7 +384,10 @@ of an update</p>
 
 </dd></dl>
 
-<span class="target" id="module-app.task"></span><dl class="class">
+</div>
+<div class="section" id="module-app.task">
+<span id="task"></span><h2>Task<a class="headerlink" href="#module-app.task" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
 <dt id="app.task.Task">
 <em class="property">class </em><code class="descclassname">app.task.</code><code class="descname">Task</code><span class="sig-paren">(</span><em>name='new_task'</em>, <em>task_id=None</em>, <em>func=None</em>, <em>conn=None</em>, <em>args_in=None</em>, <em>loop=False</em>, <em>interval=100</em>, <em>run_in=0</em>, <em>kill_time=None</em>, <em>db_use=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.task.Task" title="Permalink to this definition">¶</a></dt>
 <dd><p>Task objects are used to simplify running specific functions with
@@ -393,7 +396,10 @@ and the parameters under which it should be run. This is an easy
 way to put functions in a queue and let them run later.</p>
 </dd></dl>
 
-<span class="target" id="module-app.newthread"></span><dl class="class">
+</div>
+<div class="section" id="module-app.newthread">
+<span id="new-thread"></span><h2>New_Thread<a class="headerlink" href="#module-app.newthread" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
 <dt id="app.newthread.New_Thread">
 <em class="property">class </em><code class="descclassname">app.newthread.</code><code class="descname">New_Thread</code><span class="sig-paren">(</span><em>func</em>, <em>args_in=None</em>, <em>loop=False</em>, <em>loop_time=5</em>, <em>use_pdb=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.newthread.New_Thread" title="Permalink to this definition">¶</a></dt>
 <dd><p>A New_Thread is built from a threading.thread with the added
@@ -494,6 +500,7 @@ same thread object.</p>
 </dd></dl>
 
 </div>
+</div>
 <div class="section" id="module-ui">
 <span id="cli-documentation"></span><h1>CLI Documentation<a class="headerlink" href="#module-ui" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
@@ -585,8 +592,17 @@ hard-wired commands are translated into the Server API</p>
 <li><a class="reference internal" href="#module-app.functions_util">Functions Utility</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-dbi.db_alchemy">Database API</a></li>
-<li><a class="reference internal" href="#module-app.server">Server Documentation</a></li>
+<li><a class="reference internal" href="#database-api">Database API</a><ul>
+<li><a class="reference internal" href="#module-dbi.db_alchemy">SQLAlchemy Objects</a></li>
+<li><a class="reference internal" href="#module-dbi.db_util">DBI Utility</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#server-documentation">Server Documentation</a><ul>
+<li><a class="reference internal" href="#module-app.server">Server</a></li>
+<li><a class="reference internal" href="#module-app.task">Task</a></li>
+<li><a class="reference internal" href="#module-app.newthread">New_Thread</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-ui">CLI Documentation</a></li>
 </ul>
 <div class="relations">

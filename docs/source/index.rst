@@ -6,16 +6,7 @@
 ShakeCast V4 (pyCast) Developer's Documentation
 ===============================================
 
-Contents:
-.. automodule:: app.objects
-.. automodule:: app.functions
-.. automodule:: app.functions_util
-.. automodule:: dbi.db_alchemy
-.. automodule:: dbi.db_util
-.. automodule:: app.server
-.. automodule:: app.task
-.. automodule:: app.newthread
-.. automodule:: ui
+.. automodule:: app
 
 Objects
 -------
@@ -37,19 +28,31 @@ Functions Utility
 Database API
 ============
 
+SQLAlchemy Objects
+------------------
 .. automodule:: dbi.db_alchemy
    :members:
 
+DBI Utility
+-----------
 .. automodule:: dbi.db_util
    :members:
 
 Server Documentation
 ====================
 
+Server
+------
 .. automodule:: app.server
    :members:
+
+Task
+----
 .. automodule:: app.task
    :members:
+
+New_Thread
+----------
 .. automodule:: app.newthread
    :members:
    :inherited-members:
