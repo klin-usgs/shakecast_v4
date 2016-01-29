@@ -1,70 +1,26 @@
-.. pyCast documentation master file, created by
-   sphinx-quickstart on Mon Jan 25 15:14:13 2016.
+.. ShakeMap Manual documentation master file, created by
+   sphinx-quickstart on Thu Nov 12 12:58:36 2015.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-###############################################
-ShakeCast V4 (pyCast) Developer's Documentation
-###############################################
-   
-.. automodule:: app
+#######################
+pyCast Developer Manual
+#######################
 
-*******
-Objects
-*******
+.. toctree::
+   :maxdepth: 3
 
-.. automodule:: app.objects
-   :members:
+   app.rst
+   objects.rst
+   functions.rst
+   db.rst
+   server.rst
+   cli.rst
 
-*********
-Functions
-*********
+.. Indices and tables
+.. ==================
 
-.. automodule:: app.functions
-   :members:
+.. * :ref:`genindex`
 
-Functions Utility
-=================
-.. automodule:: app.functions_util
-   :members:
-
-************
-Database API
-************
-
-SQLAlchemy Objects
-==================
-.. automodule:: dbi.db_alchemy
-   :members:
-
-DBI Utility
-===========
-.. automodule:: dbi.db_util
-   :members:
-
-********************
-Server Documentation
-********************
-
-Server
-======
-.. automodule:: app.server
-   :members:
-
-Task
-====
-.. automodule:: app.task
-   :members:
-
-New_Thread
-==========
-.. automodule:: app.newthread
-   :members:
-   :inherited-members:
-
-*****************
-CLI Documentation
-*****************
-
-.. automodule:: ui
-   :members:
+.. * :ref:`modindex`
+.. * :ref:`search`
