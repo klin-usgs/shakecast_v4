@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 ###############################################
-ShakeCast V4 (pyCast) Developer's Documentation
+Starting ShakeCast
 ###############################################
    
 .. automodule:: app
