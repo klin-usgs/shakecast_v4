@@ -82,6 +82,7 @@ def process_shakemaps(shakemaps=[], session=None):
         
         if not groups_affected:
             shakemap.status = 'no groups'
+            session.commit()
             continue
         
         # send out new events and create inspection notifications
@@ -91,6 +92,7 @@ def process_shakemaps(shakemaps=[], session=None):
                         .all())
             
             # send off a new event message
+            new_event = False
             if (group.has_spec(not_type='NEW_EVENT') and
                     (shakemap.shakemap_version == 1 or not old_sms)):
                 
@@ -105,7 +107,8 @@ def process_shakemaps(shakemaps=[], session=None):
                                        group=group,
                                        grid=grid,
                                        notification=notification)
-    
+                
+                new_event = True
             # send updated event message
             elif group.has_spec(not_type='Update') and shakemap.shakemap_version > 1:
                 
@@ -124,6 +127,14 @@ def process_shakemaps(shakemaps=[], session=None):
                 
             # create an inspection notification
             if group.has_spec(not_type='DAMAGE'):
+                
+                # Check if the group gets notification for updates
+                if new_event is False:
+                    specs = [spec for spec in group.specs if spec.event_type == 'UPDATE']
+                    if not specs:
+                        shakemap.status = 'update -- no notification'
+                        continue
+                    
                 notification = Notification(group=group,
                                             shakemap=shakemap,
                                             notification_type='DAMAGE',
@@ -197,6 +208,7 @@ def process_shakemaps(shakemaps=[], session=None):
                                 orange=bindparam('orange'),
                                 red=bindparam('red'),
                                 alert_level=bindparam('alert_level'),
+                                weight=bindparam('weight'),
                                 facility_id=bindparam('facility_id'),
                                 shakemap_id=bindparam('shakemap_id'),
                                 metric=bindparam('metric'),
@@ -367,7 +379,7 @@ Description: %s
                                         'Alert_Level')
         
         # get necessary shaking info from database
-        stmt = select([Facility.__table__.c.facility_id,
+        stmt = (select([Facility.__table__.c.facility_id,
                        Facility.__table__.c.name,
                        Facility.__table__.c.facility_type,
                        Facility_Shaking.__table__.c.alert_level
@@ -375,6 +387,7 @@ Description: %s
                                         Facility.__table__.c.shakecast_id,
                                         Facility_Shaking.__table__.c.shakemap_id ==
                                         shakemap.shakecast_id))
+                         .order_by(desc('weight')))
         result = db_conn.execute(stmt)
         
         # create a string that includes the shaking information queried
