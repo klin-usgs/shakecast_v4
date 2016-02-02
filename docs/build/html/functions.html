@@ -142,6 +142,16 @@
 <code class="descclassname">app.functions.</code><code class="descname">add_facs_to_groups</code><span class="sig-paren">(</span><em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.add_facs_to_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Associate all groups with the facilities that fall inside their
 monitoring region</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>session</strong> (<em>Session</em>) &#8211; A SQLAlchemy session</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -150,73 +160,298 @@ monitoring region</p>
 <dd><p>Connect all existing groups to users who have joined that group.
 This info is saved in the user&#8217;s group_string, so we can add
 groups after users have already been uploaded</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>session</strong> (<em>Session</em>) &#8211; A SQLAlchemy session</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.check_new_shakemaps">
 <code class="descclassname">app.functions.</code><code class="descname">check_new_shakemaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.check_new_shakemaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search database for unprocessed shakemaps</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary that contains information about the function run<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.check_nots">
+<code class="descclassname">app.functions.</code><code class="descname">check_nots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.check_nots" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>ONLY TO BE USED WHEN TESTING</strong>
+<strong>THIS FUNCTION MAY NOT BE UPDATED</strong></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.create_fac">
 <code class="descclassname">app.functions.</code><code class="descname">create_fac</code><span class="sig-paren">(</span><em>grid=None</em>, <em>fac_id='AUTO_GENERATED'</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.create_fac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a facility that is inside of a grid with generic fragility</p>
+<dd><p><strong>ONLY TO BE USED WHEN TESTING</strong>
+<strong>THIS FUNCTION MAY NOT BE UPDATED</strong></p>
+<p>Create a facility that is inside of a grid with generic fragility</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.create_grid">
+<code class="descclassname">app.functions.</code><code class="descname">create_grid</code><span class="sig-paren">(</span><em>shakemap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.create_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a grid object from a specific ShakeMap</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shakemap</strong> (<em>ShakeMap</em>) &#8211; A ShakeMap with a grid.xml to laod</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">With loaded grid.xml</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="objects.html#app.objects.SM_Grid" title="app.objects.SM_Grid">SM_Grid</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.create_group">
+<code class="descclassname">app.functions.</code><code class="descname">create_group</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.create_group" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>ONLY TO BE USED WHEN TESTING</strong>
+<strong>THIS FUNCTION MAY NOT BE UPDATED</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.create_user">
+<code class="descclassname">app.functions.</code><code class="descname">create_user</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.create_user" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>ONLY TO BE USED WHEN TESTING</strong>
+<strong>THIS FUNCTION MAY NOT BE UPDATED</strong></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.geo_json">
 <code class="descclassname">app.functions.</code><code class="descname">geo_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.geo_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get earthquake feed from USGS and check for new earthquakes</p>
+<p>Gets new earthquakes from the JSON feed and logs them in the DB</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a dictionary that contains information about the function run<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.import_facility_xml">
 <code class="descclassname">app.functions.</code><code class="descname">import_facility_xml</code><span class="sig-paren">(</span><em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.import_facility_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Import an XML file created by the ShakeCast workbook; Facilities</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xml_file</strong> (<em>string</em>) &#8211; The filepath to the xml_file that will be uploaded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a dictionary that contains information about the function run<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.import_group_xml">
 <code class="descclassname">app.functions.</code><code class="descname">import_group_xml</code><span class="sig-paren">(</span><em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.import_group_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Import an XML file created by the ShakeCast workbook; Groups</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xml_file</strong> (<em>string</em>) &#8211; The filepath to the xml_file that will be uploaded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a dictionary that contains information about the function run<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.import_user_xml">
 <code class="descclassname">app.functions.</code><code class="descname">import_user_xml</code><span class="sig-paren">(</span><em>xml_file=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.import_user_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Import an XML file created by the ShakeCast workbook; Users</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xml_file</strong> (<em>string</em>) &#8211; The filepath to the xml_file that will be uploaded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a dictionary that contains information about the function run<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.inspection_notification">
 <code class="descclassname">app.functions.</code><code class="descname">inspection_notification</code><span class="sig-paren">(</span><em>notification=&lt;app.dbi.db_alchemy.Notification object&gt;</em>, <em>grid=&lt;app.objects.SM_Grid object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.inspection_notification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Using an existing notificaiton and shakemap grid, create an email
-notification and send it: inspection notification</p>
+<dd><p>Create local products and send inspection notification</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>notification</strong> (<em>Notification</em>) &#8211; The Notification that will be sent</li>
+<li><strong>grid</strong> (<a class="reference internal" href="objects.html#app.objects.SM_Grid" title="app.objects.SM_Grid"><em>SM_Grid</em></a>) &#8211; create from the ShakeMap</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.make_inspection_prios">
 <code class="descclassname">app.functions.</code><code class="descname">make_inspection_prios</code><span class="sig-paren">(</span><em>facility=Facility(facility_id=None</em>, <em>facility_type=None</em>, <em>name=None</em>, <em>short_name=None</em>, <em>description=None</em>, <em>lat_min=None</em>, <em>lat_max=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>grey=None</em>, <em>green=None</em>, <em>yellow=None</em>, <em>orange=None</em>, <em>red=None</em>, <em>grey_beta=None</em>, <em>green_beta=None</em>, <em>yellow_beta=None</em>, <em>orange_beta=None</em>, <em>red_beta=None</em>, <em>metric=None)</em>, <em>shakemap=ShakeMap(shakemap_id=None</em>, <em>status=None</em>, <em>map_status=None</em>, <em>event_id=None</em>, <em>event_version=None</em>, <em>generating_server=None</em>, <em>region=None</em>, <em>lat_min=None</em>, <em>lat_max=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>generation_timestamp=None</em>, <em>recieve_timestamp=None</em>, <em>begin_timestamp=None</em>, <em>end_timestamp=None</em>, <em>superceded_timestamp=None</em>, <em>directory_name=None)</em>, <em>grid=&lt;app.objects.SM_Grid object&gt;</em>, <em>notifications=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.make_inspection_prios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines inspection priorities for the input facility</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>facility</strong> (<em>Facility</em>) &#8211; A facility to be processed</li>
+<li><strong>shakemap</strong> (<em>ShakeMap</em>) &#8211; The ShakeMap which is associated with the shaking</li>
+<li><strong>grid</strong> (<a class="reference internal" href="objects.html#app.objects.SM_Grid" title="app.objects.SM_Grid"><em>SM_Grid</em></a>) &#8211; The grid built from the ShakeMap</li>
+<li><strong>notifications</strong> (<em>list</em>) &#8211; List of Notification objects which should be associated with the shaking</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>A dictionary with all the parameters needed to make a Facility_Shaking entry in the database</p>
+<div class="highlight-python"><div class="highlight"><pre>fac_shaking = {&#39;grey&#39;: PDF Value,
+               &#39;green&#39;: PDF Value,
+               &#39;yellow&#39;: PDF Value,
+               &#39;orange&#39;: PDF Value,
+               &#39;red&#39;: PDF Value,
+               &#39;metric&#39;: which metric is used to compute PDF values,
+               &#39;facility_id&#39;: shakecast_id of the facility that&#39;s shaking,
+               &#39;shakemap_id&#39;: shakecast_id of the associated ShakeMap,
+               &#39;_shakecast_id&#39;: ID for the Facility_Shaking entry that will be created,
+               &#39;update&#39;: bool -- True if an ID already exists for this Facility_Shaking,
+               &#39;alert_level&#39;: string (&#39;grey&#39;, &#39;green&#39;, &#39;yellow&#39; ...),
+               &#39;weight&#39;: float that determines inspection priority,
+               &#39;notifications&#39;: list of notifications associated with this shaking}
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.new_event_notification">
+<code class="descclassname">app.functions.</code><code class="descname">new_event_notification</code><span class="sig-paren">(</span><em>shakemap=ShakeMap(shakemap_id=None</em>, <em>status=None</em>, <em>map_status=None</em>, <em>event_id=None</em>, <em>event_version=None</em>, <em>generating_server=None</em>, <em>region=None</em>, <em>lat_min=None</em>, <em>lat_max=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>generation_timestamp=None</em>, <em>recieve_timestamp=None</em>, <em>begin_timestamp=None</em>, <em>end_timestamp=None</em>, <em>superceded_timestamp=None</em>, <em>directory_name=None)</em>, <em>grid=&lt;app.objects.SM_Grid object&gt;</em>, <em>group=Group(name=None</em>, <em>facility_type=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>lat_min=None</em>, <em>lat_max=None)</em>, <em>update=False</em>, <em>notification=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.new_event_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create local products for NEW_EVENT notification and send it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>shakemap</strong> (<em>ShakeMap</em>) &#8211; which ShakeMap the Notification is attached to</li>
+<li><strong>grid</strong> (<a class="reference internal" href="objects.html#app.objects.SM_Grid" title="app.objects.SM_Grid"><em>SM_Grid</em></a>) &#8211; create from the ShakeMap</li>
+<li><strong>group</strong> (<em>Group</em>) &#8211; The Group that this Notification is being send to</li>
+<li><strong>update</strong> (<em>bool</em>) &#8211; True if this is an Update instead of NEW_EVENT</li>
+<li><strong>notification</strong> (<em>Notification</em>) &#8211; The Notification that will be sent</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="app.functions.process_shakemaps">
 <code class="descclassname">app.functions.</code><code class="descname">process_shakemaps</code><span class="sig-paren">(</span><em>shakemaps=[]</em>, <em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.process_shakemaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process or reprocess the shakemaps passed into the function</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="app.functions.run_scenario">
-<code class="descclassname">app.functions.</code><code class="descname">run_scenario</code><span class="sig-paren">(</span><em>eq=''</em>, <em>version=0</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.run_scenario" title="Permalink to this definition">¶</a></dt>
-<dd><p>Have pyCast process a specific event, submitted by a user</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="app.functions.send_notifications">
-<code class="descclassname">app.functions.</code><code class="descname">send_notifications</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.send_notifications" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resend notifications that failed for some reason before</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>shakemaps</strong> (<em>list</em>) &#8211; List of ShakeMap objects to process</li>
+<li><strong>session</strong> (<em>Session(</em>) &#8211; SQLAlchemy session</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary that contains information about the function run</p>
+<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <div class="section" id="module-app.functions_util">
