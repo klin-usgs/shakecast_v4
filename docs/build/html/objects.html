@@ -159,7 +159,7 @@ using the SM_Grid.sort_by method</p>
 
 <dl class="class">
 <dt id="app.objects.Product_Grabber">
-<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Product_Grabber</code><span class="sig-paren">(</span><em>req_products=['grid.xml', 'stationlist.xml', 'intensity.jpg', 'info.xml', 'ii_overlay.png'], data_dir=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Product_Grabber" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Product_Grabber</code><span class="sig-paren">(</span><em>req_products=[]</em>, <em>data_dir=''</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Product_Grabber" title="Permalink to this definition">¶</a></dt>
 <dd><p>Able to access the USGS web, download products, and make entries
 in the database</p>
 <dl class="method">
@@ -182,6 +182,234 @@ variable. Also makes a list of the earthquakes&#8217; IDs</p>
 <dd><p>Checks the json feed for new earthquakes. Currently only looks
 for earthquakes with ShakeMaps, but this behavior may want want
 to be changed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="app.objects.SC">
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">SC</code><a class="headerlink" href="#app.objects.SC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds application custimization settings</p>
+<dl class="attribute">
+<dt id="app.objects.SC.timezone">
+<code class="descname">timezone</code><a class="headerlink" href="#app.objects.SC.timezone" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; How many hours to offset from UTC</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.new_eq_mag_cutoff">
+<code class="descname">new_eq_mag_cutoff</code><a class="headerlink" href="#app.objects.SC.new_eq_mag_cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; Lowest magnitude earthquake app stores</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.check_new_int">
+<code class="descname">check_new_int</code><a class="headerlink" href="#app.objects.SC.check_new_int" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; how often to check db for new eqs</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.use_geo_json">
+<code class="descname">use_geo_json</code><a class="headerlink" href="#app.objects.SC.use_geo_json" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; False if using PDL</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.geo_json_web">
+<code class="descname">geo_json_web</code><a class="headerlink" href="#app.objects.SC.geo_json_web" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; The web address where app gets json feed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.geo_json_int">
+<code class="descname">geo_json_int</code><a class="headerlink" href="#app.objects.SC.geo_json_int" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; How many seconds between running geo_json</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.archive_mag">
+<code class="descname">archive_mag</code><a class="headerlink" href="#app.objects.SC.archive_mag" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> &#8211; Min mag that is auto-archived</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.keep_eq_for">
+<code class="descname">keep_eq_for</code><a class="headerlink" href="#app.objects.SC.keep_eq_for" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Days before eq is deleted</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.eq_req_products">
+<code class="descname">eq_req_products</code><a class="headerlink" href="#app.objects.SC.eq_req_products" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> &#8211; Which products should be downloaded from web</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.log_rotate">
+<code class="descname">log_rotate</code><a class="headerlink" href="#app.objects.SC.log_rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Days between log rotations</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.log_file">
+<code class="descname">log_file</code><a class="headerlink" href="#app.objects.SC.log_file" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Name of the log file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.log_level">
+<code class="descname">log_level</code><a class="headerlink" href="#app.objects.SC.log_level" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Low, Normal, or High</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.db_type">
+<code class="descname">db_type</code><a class="headerlink" href="#app.objects.SC.db_type" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; sqlite, mysql, ... (only tested with sqlite)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.db_password">
+<code class="descname">db_password</code><a class="headerlink" href="#app.objects.SC.db_password" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; For access to database</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.db_username">
+<code class="descname">db_username</code><a class="headerlink" href="#app.objects.SC.db_username" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; For access to database</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.db_retry_count">
+<code class="descname">db_retry_count</code><a class="headerlink" href="#app.objects.SC.db_retry_count" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Attempts to access db</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.db_retry_interval">
+<code class="descname">db_retry_interval</code><a class="headerlink" href="#app.objects.SC.db_retry_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Wait time between attempts to access db</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_server">
+<code class="descname">smtp_server</code><a class="headerlink" href="#app.objects.SC.smtp_server" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Name of smtp (smtp.gmail.com)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_security">
+<code class="descname">smtp_security</code><a class="headerlink" href="#app.objects.SC.smtp_security" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; SSL, TLS</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_port">
+<code class="descname">smtp_port</code><a class="headerlink" href="#app.objects.SC.smtp_port" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Default 587 for SMTP</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_password">
+<code class="descname">smtp_password</code><a class="headerlink" href="#app.objects.SC.smtp_password" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; for SMTP access</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_username">
+<code class="descname">smtp_username</code><a class="headerlink" href="#app.objects.SC.smtp_username" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; for SMTP access</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_envelope_from">
+<code class="descname">smtp_envelope_from</code><a class="headerlink" href="#app.objects.SC.smtp_envelope_from" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Mail to be sent from</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.smtp_from">
+<code class="descname">smtp_from</code><a class="headerlink" href="#app.objects.SC.smtp_from" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Mail to be sent from</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.default_template_new_event">
+<code class="descname">default_template_new_event</code><a class="headerlink" href="#app.objects.SC.default_template_new_event" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; New event notification template name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.default_template_inspection">
+<code class="descname">default_template_inspection</code><a class="headerlink" href="#app.objects.SC.default_template_inspection" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Inspection notificaiton template name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.default_template_pdf">
+<code class="descname">default_template_pdf</code><a class="headerlink" href="#app.objects.SC.default_template_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; PDF template name</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.use_proxy">
+<code class="descname">use_proxy</code><a class="headerlink" href="#app.objects.SC.use_proxy" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> &#8211; Whether or not to traffic through proxy</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.proxy_username">
+<code class="descname">proxy_username</code><a class="headerlink" href="#app.objects.SC.proxy_username" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; For proxy access</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.proxy_password">
+<code class="descname">proxy_password</code><a class="headerlink" href="#app.objects.SC.proxy_password" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; For proxy access</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.proxy_server">
+<code class="descname">proxy_server</code><a class="headerlink" href="#app.objects.SC.proxy_server" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Name of proxy server</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.proxy_port">
+<code class="descname">proxy_port</code><a class="headerlink" href="#app.objects.SC.proxy_port" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> &#8211; Which port to use for proxy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.SC.get_conf_dir">
+<code class="descname">get_conf_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SC.get_conf_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine where the conf directory is</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The absolute path the the conf directory</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.SC.load">
+<code class="descname">load</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SC.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load information from database to the SC object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

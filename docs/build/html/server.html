@@ -148,13 +148,13 @@
 It keeps track of which functions (Tasks) are supposed to run and
 when. It provides an API that can be utilized through the CLI
 and eventually the GUI.</p>
-<dl class="docutils">
-<dt>API: {&#8216;name_of_task&#8217;: {&#8216;func&#8217;: name_of_function,</dt>
-<dd>&#8216;loop&#8217;: True/False,
-&#8216;interval&#8217;: int (duration between looping runs),
-&#8216;args_in&#8217;: kwargs,
-&#8216;db_use&#8217;: True/False}}</dd>
-</dl>
+<div class="highlight-python"><div class="highlight"><pre>API: {&#39;name_of_task&#39;: {&#39;func&#39;: name_of_function,
+                       &#39;loop&#39;: True/False,
+                       &#39;interval&#39;: int (duration between looping runs),
+                       &#39;args_in&#39;: kwargs,
+                       &#39;db_use&#39;: True/False}}
+</pre></div>
+</div>
 <p>name_of_function must be a function in the functions module or a
 method of the Server</p>
 <dl class="method">
