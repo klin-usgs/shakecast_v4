@@ -719,7 +719,15 @@ class Product(Base):
                                                      self.update_username,
                                                      self.update_timestamp)
     
-    
+class Plugins(Base):
+    """
+    Keeps track of the available plugins and whether or not the user
+    wants the ShakeCast system to utilize them
+    """
+    __tablename__ = 'sc'
+    shakecast_id = Column(Integer, primary_key=True)
+    plugin_name = Column(String(100))
+    use = Column(String(10))
     
 #######################################################################
 
