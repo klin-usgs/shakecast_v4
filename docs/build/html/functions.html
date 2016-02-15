@@ -173,8 +173,8 @@ groups after users have already been uploaded</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="app.functions.check_new_shakemaps">
-<code class="descclassname">app.functions.</code><code class="descname">check_new_shakemaps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.check_new_shakemaps" title="Permalink to this definition">¶</a></dt>
+<dt id="app.functions.check_new">
+<code class="descclassname">app.functions.</code><code class="descname">check_new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.check_new" title="Permalink to this definition">¶</a></dt>
 <dd><p>Search database for unprocessed shakemaps</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -401,7 +401,7 @@ groups after users have already been uploaded</p>
 
 <dl class="function">
 <dt id="app.functions.new_event_notification">
-<code class="descclassname">app.functions.</code><code class="descname">new_event_notification</code><span class="sig-paren">(</span><em>shakemap=ShakeMap(shakemap_id=None</em>, <em>status=None</em>, <em>map_status=None</em>, <em>event_id=None</em>, <em>event_version=None</em>, <em>generating_server=None</em>, <em>region=None</em>, <em>lat_min=None</em>, <em>lat_max=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>generation_timestamp=None</em>, <em>recieve_timestamp=None</em>, <em>begin_timestamp=None</em>, <em>end_timestamp=None</em>, <em>superceded_timestamp=None</em>, <em>directory_name=None)</em>, <em>grid=&lt;app.objects.SM_Grid object&gt;</em>, <em>group=Group(name=None</em>, <em>facility_type=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>lat_min=None</em>, <em>lat_max=None)</em>, <em>update=False</em>, <em>notification=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.new_event_notification" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">app.functions.</code><code class="descname">new_event_notification</code><span class="sig-paren">(</span><em>event=None</em>, <em>group=Group(name=None</em>, <em>facility_type=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>lat_min=None</em>, <em>lat_max=None)</em>, <em>notification=None</em>, <em>update=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.new_event_notification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create local products for NEW_EVENT notification and send it</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -417,6 +417,38 @@ groups after users have already been uploaded</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="app.functions.process_new_events">
+<code class="descclassname">app.functions.</code><code class="descname">process_new_events</code><span class="sig-paren">(</span><em>new_events=[]</em>, <em>session=None</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.process_new_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process or reprocess events passed into the function. Will send
+NEW_EVENT and UPDATE emails</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>new_events</strong> (<em>list</em>) &#8211; List of Event objects to process</li>
+<li><strong>session</strong> (<em>Session(</em>) &#8211; SQLAlchemy session</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>a dictionary that contains information about the function run</p>
+<div class="highlight-python"><div class="highlight"><pre>data = {&#39;status&#39;: either &#39;finished&#39; or &#39;failed&#39;,
+        &#39;message&#39;: message to be returned to the UI,
+        &#39;log&#39;: message to be added to ShakeCast log
+               and should contain info on error}
+</pre></div>
+</div>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
 </td>
 </tr>
 </tbody>
