@@ -88,8 +88,7 @@ class Product_Grabber(object):
         """
         Checks the json feed for new earthquakes
         """
-        Local_Session = scoped_session(Session)
-        session = Local_Session()
+        session = Session()
         sc = SC()
         
         event_str = ''
@@ -155,7 +154,7 @@ class Product_Grabber(object):
             new_events += [event]
             event_str += 'Event: %s\n' % event.event_id
         
-        Local_Session.remove()
+        Session.remove()
         print event_str
         return new_events, event_str
             
@@ -163,8 +162,7 @@ class Product_Grabber(object):
         """
         Checks the json feed for new earthquakes
         """
-        Local_Session = scoped_session(Session)
-        session = Local_Session()
+        session = Session()
         sc = SC()
         
         shakemap_str = ''
@@ -219,8 +217,9 @@ class Product_Grabber(object):
             shakemap.status = 'new'
             
             # make a directory for the new event
-            shakemap.directory_name = '%s%s/%s-%s' % (self.data_dir,
+            shakemap.directory_name = '%s%s%s%s-%s' % (self.data_dir,
                                                    shakemap.shakemap_id,
+                                                   get_delim(),
                                                    shakemap.shakemap_id,
                                                    shakemap.shakemap_version)
             if not os.path.exists(shakemap.directory_name):
@@ -266,7 +265,7 @@ class Product_Grabber(object):
             shakemap_str += 'Wrote %s to disk.\n' % eq_id
     
         self.log += shakemap_str
-        Local_Session.remove()
+        Session.remove()
         print shakemap_str
         return new_shakemaps, shakemap_str
 
@@ -456,6 +455,9 @@ class SM_Grid(object):
         Will return a float with the largest shaking in a specified
         region. If no grid points are found within the region, the
         region is made larger until a point is present
+        
+        Returns:
+            int: -1 if max shaking can't be determined, otherwise shaking level
         '''
     
         if facility is not None:
@@ -468,8 +470,16 @@ class SM_Grid(object):
             except:
                 return -1
             
-        if not facility.in_grid(self):
+        if not self.grid:
             return None
+        
+        # check if the facility lies in the grid    
+        if not facility.in_grid(self):
+            return {facility.metric: 0}
+        
+        # check if the facility's metric exists in the grid
+        if not self.grid[0].info.get(facility.metric, None):
+            return {facility.metric: None}
         
         # sort the grid in an attempt to speed up processing on
         # many facilities
@@ -484,16 +494,12 @@ class SM_Grid(object):
         
         shaking = []
         while not shaking:
-            #shaking = [point for point in self.grid[start:end] if
-            ##                            (point.info['LON'] > lon_min and
-            #                             point.info['LON'] < lon_max and
-            #                             point.info['LAT'] > lat_min and
-            #                             point.info['LAT'] < lat_max)]
-            
             shaking = [point for point in self.grid[start:end] if
                                         (point.info['LAT'] > lat_min and
                                          point.info['LAT'] < lat_max)]
             
+            # make the rectangle we're searching in larger to encompass
+            # more points
             lon_min -= .01
             lon_max += .01
             lat_min -= .01
@@ -571,6 +577,9 @@ class SC(object):
         proxy_password (str): For proxy access
         proxy_server (str): Name of proxy server
         proxy_port (int): Which port to use for proxy
+        server_name (str): What the admin chooses to call the instance
+        server_dns (str): How the instance is accessed
+        software_version (str): Implemented pyCast software
     """
     
     def __init__(self):
@@ -606,6 +615,9 @@ class SC(object):
         self.proxy_password = ''
         self.proxy_server = ''
         self.proxy_port = 0
+        self.server_name = ''
+        self.server_dns = ''
+        self.software_version = ''
     
         self.load()
     
@@ -668,14 +680,17 @@ class SC(object):
         self.proxy_server = conf_json['Proxy']['server']
         self.proxy_port = conf_json['Proxy']['port']
         
-        
-        
+        # Server
+        self.server_name = conf_json['Server']['name']
+        self.server_dns = conf_json['Server']['DNS']
+        self.software_version = conf_json['Server']['software_version']
+    
     def get_conf_dir(self):
         """
         Determine where the conf directory is
         
         Returns:
-            string: The absolute path the the conf directory
+            str: The absolute path the the conf directory
         """
         
         # Get directory location for database
@@ -688,14 +703,405 @@ class SC(object):
         return directory
         
 
+class Notification_Builder(object):
+    """
+    Holds HTML shell for new events as well as notification configuration
+    settings for a new event message
     
+    Attributes:
+        html (str): generated HTML new event notification
+        html_shell (str): HTML before it is filled in with info for notification and user specifications
+    """
     
-            
-    
-    
-    
-    
+    def __init__(self):
+        self.html = ''
+        self.html_shell_ne = """
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+</head>
+<body style="background-color:%s;width:700px">
+    <table style="table-layout:fixed;width:100%%">
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <div style="width: 80px">
+                                <img style="border-radius:50%%" src="cid:sc_logo">
+                            </div>
+                        </td>
+                        <td>
+                            <h1 style="color:#444444;font-size:50px;font-family:Arial;margin:0px">ShakeCast Alert</h1>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table style="width:95%%;margin-left:2.5%%">
+                    <tr>
+                        <td>
+                            <h2 style="font-family:Arial;color:%s;background-color:%s;padding:10px;margin-top:20px;margin-bottom:5px">Preliminary Earthquake Notification</h2>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr style="background-color:%s">
+            <td>
+                <table style="width:90%%;margin-left:5%%">
+                    <tr>
+                        <td>
+                            <p style="font-family:Arial;color:%s;margin:0px">%s %s</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
 
+        <tr style="text-align:center">
+            <td>
+                <h2 style="color:%s;border-bottom:2px solid %s;width:200px;margin-left:auto;margin-right:auto;font-family:Arial">Earthquake Details</h2>
+            </td>
+        </tr>
+        <tr>
         
+            <td>
+                <table style="text-align:center;border: 2px solid #444444;border-collapse: collapse;padding: 5px;font-family:Arial; width:100%%">
+                    <tbody style="position: relative">
+                        <tr style="border: 2px solid #444444">
+                            <th style="border: 2px solid #444444;padding: 5px;">Map</th>
+                            <th style="border: 2px solid #444444;padding: 5px;">ID</th>
+                            <th style="border: 2px solid #444444;padding: 5px;">Time</th>
+                            <th style="border: 2px solid #444444;padding: 5px;">Mag</th>
+                            <th style="border: 2px solid #444444;padding: 5px;">Lat</th>
+                            <th style="border: 2px solid #444444;padding: 5px;">Lon</th>
+                            <th style="border: 2px solid #444444;padding: 5px;">Location</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 2px solid #444444">
+                                <img src="cid:gmap">
+                            </td>
+                            <td style="border: 2px solid #444444;padding: 5px;">%s</td>
+                            <td style="border: 2px solid #444444;padding: 5px;">%s</td>
+                            <td style="border: 2px solid #444444;padding: 5px;">%s</td>
+                            <td style="border: 2px solid #444444;padding: 5px;">%s</td>
+                            <td style="border: 2px solid #444444;padding: 5px;">%s</td>
+                            <td style="border: 2px solid #444444;padding: 5px;">%s</td>
+                        </tr>
+                        </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3 style="color:%s;font-family:Arial;margin-top:50px;margin-bottom:0px">ShakeCast Server:</h3>
+            </td>
+        </tr>
         
+        <tr>
+            <td>
+                <table style="color:%s;margin-left:10px">
+                    <tr>
+                        <td>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">ShakeCast Web: <a href="%s" target="_blank">%s</a></p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Software: %s</p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Notification Generated: %s</p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Reported by: %s</p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Template Type: %s</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p style="font-size: medium;font-family: Arial;">Questions about ShakeCast?  Contact Administrator at <a href="mailto:%s?subject=ShakeCast+V3+Inquiry" target="_blank">%s</a>.</p> 
+            </td>
+        </tr>
+
+    </table>
+
+</body>
+</html>
+"""
+        self.html_shell_insp = """
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+</head>
+<body style="background-color:{0};width:700px">
+    <table style="table-layout:fixed;width:100%;font-family:Arial">
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <div style="width: 80px">
+                                <img src="cid:sc_logo" style="border-radius: 50%">
+                            </div>
+                        </td>
+                        <td>
+                            <h1 style="color:#444444;font-size:50px;font-family:Arial;margin:0px">ShakeCast Alert</h1>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table style="width:95%;margin-left:2.5%;">
+                    <tr>
+                        <td>
+                            <h2 style="font-family:Arial;color:{1};background-color:{2};padding:10px;margin-top:20px;margin-bottom:5px;width:100%">Inspection Notification</h2>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table style="width:90%;margin-left:5%;font-family:Arial;color:#444444;font-weight:bold">
+                    <tr>
+                        <td>
+                            <h2 style="background-color:#ffffff;margin-top:20px;margin-bottom:0px">Magnitude {3}</h2>
+                            <h2 style="background-color:#ffffff;margin-top:5px;margin-bottom:5px;border-bottom:2px solid #444444">{4}</h2>
+                            <table>
+                                <tr>
+                                    <td>Number of Facilities Evaluated</td>
+                                    <td>: {5}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color:red">High Impact</td>
+                                    <td>: {6}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color:orange">Moderate-High Impact</td>
+                                    <td>: {7}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color:gold">Moderate Impact</td>
+                                    <td>: {8}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color:green">Low Impact</td>
+                                    <td>: {9}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color:grey">No Impact</td>
+                                    <td>: {10}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
         
+        <tr>
+            <td style="text-align:center;padding-top:20px">
+                <img src="cid:shakemap">
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h2 style="color:#444444;margin-top:20px;margin-bottom:15px;border-bottom:2px solid #444444;margin-left:2.5%;width:90%">Impact Estimates:</h2>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <table style="text-align:center;border: 2px solid #444444;border-collapse:collapse;padding:5px;margin-left:5%">
+                    <tr>
+                        <th style="border: 2px solid #444444;padding: 5px;">Facility</th>
+                        <th style="border: 2px solid #444444;padding: 5px;">Inspection Priority</th>
+                        <th style="border: 2px solid #444444;padding: 5px;">Metric</th>
+                        <th style="border: 2px solid #444444;padding: 5px;">Value</th>
+                    </tr>
+                    {11}
+                </table>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <h3 style="color:{12};font-family:Arial;margin-top:50px;margin-bottom:0px">ShakeCast Server:</h3>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <table style="color:{13};margin-left:10px">
+                    <tr>
+                        <td>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">ShakeCast Web: <a href="{14}" target="_blank">{14}</a></p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Software: {15}</p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Notification Generated: {16}</p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Reported by: {17}</p>
+                            <p style="margin-bottom:2px;margin-top:0px;font-size: small;font-family: Arial;">Template Type: {18}</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p style="font-size: medium;font-family: Arial;">Questions about ShakeCast?  Contact Administrator at <a href="mailto:{19}?subject=ShakeCast+V3+Inquiry" target="_blank">{19}</a>.</p> 
+            </td>
+        </tr>
+
+    </table>
+
+</body>
+</html>
+"""
+
+    def buildNewEventHTML(self, event):
+        """
+        Builds the HTML notification using the html_shell.
+        
+        Args:
+            event (Event): Event object for the notification being created
+        """
+        sc = SC()
+        temp_dir = self.get_temp_dir()  + 'new_event' + get_delim()
+        temp_file = open(temp_dir + sc.default_template_new_event, 'r')
+        temp_str = temp_file.read()
+        temp_json = json.loads(temp_str)
+
+        sc_link = temp_json['intro']['sc_link'] % sc.server_dns
+        
+        self.html = self.html_shell_ne % (
+            temp_json['body_color'],
+            temp_json['section_head']['font_color'],
+            temp_json['section_head']['back_color'],
+            temp_json['intro']['back_color'],
+            temp_json['intro']['font_color'],
+            temp_json['intro']['text'], sc_link,
+            temp_json['second_head']['font_color'],
+            temp_json['second_head']['border_color'],
+            event.event_id,
+            event.time,
+            event.magnitude,
+            event.lat,
+            event.lon,
+            event.place,
+            temp_json['footer']['header_color'],
+            temp_json['footer']['font_color'],
+            sc.server_dns, sc.server_dns,
+            sc.software_version,
+            '',
+            sc.server_name,
+            '',
+            temp_json['admin_email'], temp_json['admin_email']
+        )
+        
+    def buildInspHTML(self, shakemap):
+        """
+        Builds the HTML notification using the html_shell_insp.
+        
+        Args:
+            shakemap (ShakeMap): ShakeMap object for the notification being created
+        """
+        
+        sc = SC()
+        temp_dir = self.get_temp_dir()  + 'inspection' + get_delim()
+        temp_file = open(temp_dir + sc.default_template_inspection, 'r')
+        temp_str = temp_file.read()
+        temp_json = json.loads(temp_str)
+        
+        # make facility string
+        stmt = (select([Facility.__table__.c.facility_id,
+                       Facility.__table__.c.name,
+                       Facility.__table__.c.facility_type,
+                       Facility_Shaking.__table__.c.alert_level,
+                       Facility_Shaking.__table__.c.metric
+                       ]).where(and_(Facility_Shaking.__table__.c.facility_id ==
+                                        Facility.__table__.c.shakecast_id,
+                                        Facility_Shaking.__table__.c.shakemap_id ==
+                                        shakemap.shakecast_id))
+                         .order_by(desc('weight')))
+        result = engine.execute(stmt)
+        fac_row = """        
+                    <tr>
+                        <td style="border: 2px solid #444444;padding: 5px;">{0}</td>
+                        <td style="border: 2px solid #444444;padding: 5px;background-color:{1}">{2}</td>
+                        <td style="border: 2px solid #444444;padding: 5px;">{3}</td>
+                        <td style="border: 2px solid #444444;padding: 5px;">{3}</td>
+                    </tr>
+"""
+        fac_str = ''
+        grey_count = 0
+        green_count = 0
+        yellow_count = 0
+        orange_count = 0
+        red_count = 0
+        for row in result:
+            if row[3] == 'green':
+                color = '#44dd66'
+                green_count += 1
+                impact = 'Low'
+            elif row[3] == 'yellow':
+                color = 'yellow'
+                impact = 'Moderate'
+                yellow_count += 1
+            elif row[3] == 'orange':
+                color = 'orange'
+                impact = 'Moderate - High'
+                orange_count += 1
+            elif row[3] == 'red':
+                color = '#ff4444'
+                red_count += 1
+                impact = 'High'
+            else:
+                color = '#dddddd'
+                grey_count += 1
+                impact = 'None'
+                
+            fac_str += fac_row.format(row[1], color, impact, row[4], row[4])
+            
+        result.close()
+        
+        self.html = self.html_shell_insp.format(
+            temp_json['body_color'],
+            temp_json['section_head']['font_color'],
+            temp_json['section_head']['back_color'],
+            shakemap.event.magnitude,
+            shakemap.event.place,
+            str(grey_count + green_count + yellow_count + orange_count + red_count),
+            red_count,
+            orange_count,
+            yellow_count,
+            green_count,
+            grey_count,
+            fac_str,
+            temp_json['footer']['header_color'],
+            temp_json['footer']['font_color'],
+            sc.server_dns,
+            sc.software_version,
+            '',
+            sc.server_name,
+            '',
+            temp_json['admin_email']
+        )
+    
+    def get_temp_dir(self):
+        """
+        Determine where the template directory is
+        
+        Returns:
+            string: The absolute path the the template directory
+        """
+        
+        # Get directory location for database
+        path = os.path.dirname(os.path.abspath(__file__))
+        delim = get_delim()
+        path = path.split(delim)
+        path[-1] = 'templates'
+        directory = delim.join(path) + delim
+        
+        return directory

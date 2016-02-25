@@ -5,6 +5,8 @@ import math
 import itertools
 import xml.etree.ElementTree as ET
 from email.mime.text import MIMEText
+from email.MIMEImage import MIMEImage
+from email.MIMEMultipart import MIMEMultipart
 from dbi.db_alchemy import *
 from objects import *
 from functions_util import *
@@ -57,8 +59,7 @@ def check_new():
     
     log_message = ''
     try:
-        Local_Session = scoped_session(Session)
-        session = Local_Session()
+        session = Session()
         
         new_events = (session.query(Event)
                              .filter(Event.status=='new')
@@ -80,10 +81,11 @@ def check_new():
         else:
             log_message += '\nNo new shakemaps'
     
-        Local_Session.remove()
+        Session.remove()
     except:
         log_message += 'failed to process new shakemaps: '
-
+        raise
+    
     data = {'status': 'finished',
             'message': 'Check for new earthquakes',
             'log': log_message}
@@ -107,7 +109,7 @@ def process_new_events(new_events=[], session=None):
                     'log': message to be added to ShakeCast log
                            and should contain info on error}
     '''
-    db_conn = engine.connect()
+    
     for new_event in new_events:
         new_event.status = 'processing_started'
         
@@ -122,6 +124,12 @@ def process_new_events(new_events=[], session=None):
         for group in groups_affected:
             # Check if the group gets NEW_EVENT messages
             if group.has_spec(not_type='NEW_EVENT'):
+                
+                # check new_event magnitude to make sure the group wants a notificaiton
+                new_event_spec = [s for s in group.specs
+                                    if s.notification_type == 'NEW_EVENT'][0]
+                if new_event_spec.minimum_magnitude > new_event.magnitude:
+                    continue
                 
                 notification = Notification(group=group,
                                             event=new_event,
@@ -152,7 +160,6 @@ def process_shakemaps(shakemaps=[], session=None):
                            and should contain info on error}
     '''
     
-    db_conn = engine.connect()
     for shakemap in shakemaps:
         shakemap.status = 'processing_started'
         
@@ -174,9 +181,9 @@ def process_shakemaps(shakemaps=[], session=None):
                         .all())
             
             # determine whether it is a new event or not
-            new_event = False
-            if (group.has_spec(not_type='NEW_EVENT') and
-                    (shakemap.shakemap_version == 1 or not old_sms)):
+            if shakemap.shakemap_version > 1:
+                new_event = False
+            else:
                 new_event = True
                 
             # create an inspection notification
@@ -204,7 +211,6 @@ def process_shakemaps(shakemaps=[], session=None):
                     .all())
         
         if notifications:
-        #if group.has_spec(not_type='Inspection'):
             # get a set of all affected facilities
             affected_facilities = set(itertools
                                         .chain
@@ -221,7 +227,7 @@ def process_shakemaps(shakemaps=[], session=None):
             shaking_id = (session
                             .query(Facility_Shaking.shakecast_id,
                                    func.max(Facility_Shaking.shakecast_id))
-                                .first()[0])
+                            .first()[0])
             if shaking_id:
                 shaking_id += 1
             else:
@@ -236,6 +242,9 @@ def process_shakemaps(shakemaps=[], session=None):
                                                     shakemap=shakemap,
                                                     grid=grid,
                                                     notifications=notifications)
+                if fac_shaking is False:
+                    continue
+
                 if not fac_shaking['update']:
                     fac_shaking['_shakecast_id'] = shaking_id
                     shaking_id += 1
@@ -282,12 +291,12 @@ def process_shakemaps(shakemaps=[], session=None):
             # if there are facilities affected, send shaking data to
             # database
             if fac_shaking_lst:
-                db_conn.execute(stmt, fac_shaking_lst)
+                engine.execute(stmt, fac_shaking_lst)
             # quick check for relationships before inserting into
             # database in order to avoid errors in strange
             # circumstances... probably not necessary
             if relationships:
-                db_conn.execute(rel_stmt, relationships)
+                engine.execute(rel_stmt, relationships)
             session.commit()
             
             # send inspection notifications for the shaking levels we
@@ -330,15 +339,13 @@ def make_inspection_prios(facility=Facility(),
     '''
     
     # get the largest shaking level affecting the facility
-    facility_shaking = grid.max_shaking(facility=facility)
-    if facility_shaking is not None:
-        shaking_level = facility_shaking[facility.metric]
-    else:
-        shaking_level = 0
+    shaking_point = grid.max_shaking(facility=facility)
+    if shaking_point is None:
+        return False
     
     # use the max shaking value to create fragility curves for the
     # damage states
-    fac_shaking = facility.make_alert_level(shaking_level=shaking_level,
+    fac_shaking = facility.make_alert_level(shaking_point=shaking_point,
                                             shakemap=shakemap,
                                             notifications=notifications)
     return fac_shaking
@@ -346,69 +353,64 @@ def make_inspection_prios(facility=Facility(),
 def new_event_notification(event=None,
                            group=Group(),
                            notification=None,
-                           update=False):
+                           scenario=False):
     """
-    Create local products for NEW_EVENT notification and send it
+    Build and send HTML email for a new event or scenario
     
     Args:
-        shakemap (ShakeMap): which ShakeMap the Notification is attached to
-        grid (SM_Grid): create from the ShakeMap
+        event (ShakeMap): which ShakeMap the Notification is attached to
         group (Group): The Group that this Notification is being send to
-        update (bool): True if this is an Update instead of NEW_EVENT
         notification (Notification): The Notification that will be sent
+        scenario (bool): True if the user is running a scenario
         
     Returns:
         None
     """
     
     try:
-        notification.notification_file = '%s%s%s_new_event.txt' % ((event
-                                                                    .directory_name),
-                                                                   get_delim(),
-                                                                   group.name)
-        not_file = open(notification.notification_file, 'w')
+        # create HTML for the event email
+        not_builder = Notification_Builder()
+        not_builder.buildNewEventHTML(event)
         
-        if update is True:
-            preamble = '''A previous ShakeMap has been updated. Depending on your notification group
-specifications, your ShakeCast instance may be processing a new inspection
-priority message.'''
-        else:
-            preamble = '''There has been an earthquake and your ShakeCast instance is currently
-processing the information.'''
-        
-        preamble += '\nYou are receiving this message as part of the %s notification group.' % group.name
-        
-        body = '''
-        EQ: %s
-        Magnitude: %s
-        Depth: %s KM
-        Description: %s''' % (event.event_id,
-                              event.magnitude,
-                              event.depth,
-                              event.place)
-        
-        not_file.write('%s \n %s' % (preamble, body))
-        not_file.close()
-        notification.status = 'file success'
+        notification.status = 'HTML success'
     except:
-        notification.status = 'file failed'
+        notification.status = 'HTML failed'
     
-    if notification.status != 'file failed':
+    if notification.status != 'HTML failed':
         try:
-            not_file = open(notification.notification_file, 'r')
-            msg = MIMEText(not_file.read())
-            not_file.close()
-
-            mailer = Mailer()
+            #initiate message
+            msg = MIMEMultipart()
             
+            # attach html
+            msg_html = MIMEText(not_builder.html, 'html')
+            msg.attach(msg_html)
+            
+            # get and attach map
+            gmap = urllib2.urlopen("https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=5&size=200x200&sensor=false&maptype=terrain&markers=icon:http://earthquake.usgs.gov/research/software/shakecast/icons/epicenter.png|%s,%s" % (event.lat, event.lon ,event.lat, event.lon))
+            msg_gmap = MIMEImage(gmap.read())
+            msg_gmap.add_header('Content-ID', '<gmap>')
+            msg_gmap.add_header('Content-Disposition', 'inline')
+            msg.attach(msg_gmap)
+            
+            # find the ShakeCast logo
+            logo_str = "%s%s%s%s" % (sc_dir(),
+                                     'images',
+                                     get_delim(),
+                                     'sc_logo.png')
+            
+            # open logo and attach it to the message
+            logo_file = open(logo_str, 'rb')
+            msg_image = MIMEImage(logo_file.read())
+            logo_file.close()
+            msg_image.add_header('Content-ID', '<sc_logo>')
+            msg_image.add_header('Content-Disposition', 'inline')
+            msg.attach(msg_image)
+            
+            mailer = Mailer()
             me = mailer.me
             you = [user.email for user in group.users]
             
-            if update is False:
-                msg['Subject'] = 'ShakeCast -- New Event'
-            else:
-                msg['Subject'] = 'ShakeCast -- Update'
-                
+            msg['Subject'] = event.title
             msg['To'] = ', '.join(you)
             msg['From'] = me
             
@@ -430,76 +432,12 @@ def inspection_notification(notification=Notification(),
     Returns:
         None
     '''
-    
-    db_conn = engine.connect()
     shakemap = notification.shakemap
     group = notification.group
-    
-    # save the file location for this notification
-    notification.notification_file = ('%s%s%s_Inspection.txt' %
-                                        (shakemap.directory_name,
-                                         get_delim(),
-                                         group.name))
-
     try:
-        # open the notification file and write the preamble and
-        # heading information
-        not_file = open(notification.notification_file, 'w')
-        preamble = '''
-ShakeCast has processed your facilities. You are recieving this notification
-because you are a part of the %s notification group
-                   ''' % group.name
-        body = '''
-EQ: %s
-Version: %s
-Magnitude: %s
-Depth: %s KM
-Description: %s
-        
-               ''' % (shakemap.shakemap_id,
-                      shakemap.shakemap_version,
-                      grid.magnitude,
-                      grid.depth,
-                      grid.description)
-        
-        fac_header = '%s%s%s%s%s%s%s' % ('Facility_ID',
-                                        (' ' * (15 - len('Facility_ID'))),
-                                        'Facility_Name',
-                                        (' ' * (30 - len('Facility_Name'))),
-                                        'Facility_Type',
-                                        (' ' * (20 - len('Facility_Type'))),
-                                        'Alert_Level')
-        
-        # get necessary shaking info from database
-        stmt = (select([Facility.__table__.c.facility_id,
-                       Facility.__table__.c.name,
-                       Facility.__table__.c.facility_type,
-                       Facility_Shaking.__table__.c.alert_level
-                       ]).where(and_(Facility_Shaking.__table__.c.facility_id ==
-                                        Facility.__table__.c.shakecast_id,
-                                        Facility_Shaking.__table__.c.shakemap_id ==
-                                        shakemap.shakecast_id))
-                         .order_by(desc('weight')))
-        result = db_conn.execute(stmt)
-        
-        # create a string that includes the shaking information queried
-        # above
-        fac_str = '\n'.join(['%s%s%s%s%s%s%s' % (row[0],
-                                        ' ' * (15 - len(str(row[0]))),
-                                        row[1],
-                                        ' ' * (30 - len(str(row[1]))),
-                                        row[2],
-                                        ' ' * (20 - len(str(row[2]))),
-                                        row[3]
-                                       ) for row in result])
-        
-        # add shaking information to the header string to create the
-        # body of the notification
-        body += '%s\n%s' % (fac_header, fac_str)
-        # write both the preamble and body to the file
-        not_file.write('%s \n %s' % (preamble, body))
-        
-        not_file.close()
+        not_builder = Notification_Builder()
+        not_builder.buildInspHTML(shakemap)
+    
         notification.status = 'file success'
     except:
         notification.status = 'file failed'
@@ -507,22 +445,48 @@ Description: %s
     # if the file was created successfully, try sending it
     if notification.status != 'file failed':
         try:
-            # open notification file and write its contents into MIME
-            # text for the email server
-            not_file = open(notification.notification_file, 'r')
-            msg = MIMEText(not_file.read())
-            not_file.close()
+            #initiate message
+            msg = MIMEMultipart()
             
-            # create a mailer object and determine who is sending and
-            # receiving these notifications
+            # attach html
+            msg_html = MIMEText(not_builder.html, 'html')
+            msg.attach(msg_html)
+            
+            # get and attach shakemap
+            shakemap_file = '{0}{1}{2}'.format(shakemap.directory_name,
+                                                        get_delim(),
+                                                        'intensity.jpg')
+            shakemap_image = open(shakemap_file, 'r')
+            msg_shakemap = MIMEImage(shakemap_image.read())
+            shakemap_image.close()
+            msg_shakemap.add_header('Content-ID', '<shakemap>')
+            msg_shakemap.add_header('Content-Disposition', 'inline')
+            msg.attach(msg_shakemap)
+            
+            # find the ShakeCast logo
+            logo_str = "%s%s%s%s" % (sc_dir(),
+                                     'images',
+                                     get_delim(),
+                                     'sc_logo.png')
+            
+            # open logo and attach it to the message
+            logo_file = open(logo_str, 'rb')
+            msg_image = MIMEImage(logo_file.read())
+            logo_file.close()
+            msg_image.add_header('Content-ID', '<sc_logo>')
+            msg_image.add_header('Content-Disposition', 'inline')
+            msg.attach(msg_image)
+            
             mailer = Mailer()
             me = mailer.me
-            you = [user.email for user in notification.group.users]
-            msg['Subject'] = 'ShakeCast -- Inspection'
+            you = [user.email for user in group.users]
+            
+            msg['Subject'] = '{0} {1}'.format('Inspection - ', shakemap.event.title)
             msg['To'] = ', '.join(you)
             msg['From'] = me
             
             mailer.send(msg=msg, you=you)
+            
             notification.status = 'sent'
         except:
             notification.status = 'send failed'
@@ -584,8 +548,7 @@ def import_facility_xml(xml_file=''):
                     'log': message to be added to ShakeCast log
                            and should contain info on error}
     '''
-    Local_Session = scoped_session(Session)
-    session = Local_Session()
+    session = Session()
     
     groups = session.query(Group).all()
     
@@ -768,7 +731,7 @@ def import_facility_xml(xml_file=''):
     add_facs_to_groups(session=session)
     session.commit()
     
-    Local_Session.remove()
+    Session.remove()
     
     log_message = ''
     status = 'finished'
@@ -793,9 +756,7 @@ def import_group_xml(xml_file=''):
                     'log': message to be added to ShakeCast log
                            and should contain info on error}
     '''
-    
-    Local_Session = scoped_session(Session)
-    session = Local_Session()
+    session = Session()
     
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -912,7 +873,7 @@ def import_group_xml(xml_file=''):
     add_facs_to_groups(session=session)
     add_users_to_groups(session=session)
     session.commit()
-    Local_Session.remove()
+    Session.remove()
     
     log_message = ''
     status = 'finished'
@@ -937,9 +898,7 @@ def import_user_xml(xml_file=''):
                     'log': message to be added to ShakeCast log
                            and should contain info on error}
     '''
-    
-    Local_Session = scoped_session(Session)
-    session = Local_Session()
+    session = Session()
     
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -1017,7 +976,7 @@ def import_user_xml(xml_file=''):
         
     add_users_to_groups(session=session)
     session.commit()
-    Local_Session.remove()
+    Session.remove()
     
     log_message = ''
     status = 'finished'
