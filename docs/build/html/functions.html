@@ -401,18 +401,17 @@ groups after users have already been uploaded</p>
 
 <dl class="function">
 <dt id="app.functions.new_event_notification">
-<code class="descclassname">app.functions.</code><code class="descname">new_event_notification</code><span class="sig-paren">(</span><em>event=None</em>, <em>group=Group(name=None</em>, <em>facility_type=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>lat_min=None</em>, <em>lat_max=None)</em>, <em>notification=None</em>, <em>update=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.new_event_notification" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create local products for NEW_EVENT notification and send it</p>
+<code class="descclassname">app.functions.</code><code class="descname">new_event_notification</code><span class="sig-paren">(</span><em>event=None</em>, <em>group=Group(name=None</em>, <em>facility_type=None</em>, <em>lon_min=None</em>, <em>lon_max=None</em>, <em>lat_min=None</em>, <em>lat_max=None)</em>, <em>notification=None</em>, <em>scenario=False</em><span class="sig-paren">)</span><a class="headerlink" href="#app.functions.new_event_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and send HTML email for a new event or scenario</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>shakemap</strong> (<em>ShakeMap</em>) &#8211; which ShakeMap the Notification is attached to</li>
-<li><strong>grid</strong> (<a class="reference internal" href="objects.html#app.objects.SM_Grid" title="app.objects.SM_Grid"><em>SM_Grid</em></a>) &#8211; create from the ShakeMap</li>
+<li><strong>event</strong> (<em>ShakeMap</em>) &#8211; which ShakeMap the Notification is attached to</li>
 <li><strong>group</strong> (<em>Group</em>) &#8211; The Group that this Notification is being send to</li>
-<li><strong>update</strong> (<em>bool</em>) &#8211; True if this is an Update instead of NEW_EVENT</li>
 <li><strong>notification</strong> (<em>Notification</em>) &#8211; The Notification that will be sent</li>
+<li><strong>scenario</strong> (<em>bool</em>) &#8211; True if the user is running a scenario</li>
 </ul>
 </td>
 </tr>

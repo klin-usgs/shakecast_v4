@@ -150,6 +150,69 @@ server details associated with the object</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="app.objects.Notification_Builder">
+<em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Notification_Builder</code><a class="headerlink" href="#app.objects.Notification_Builder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds HTML shell for new events as well as notification configuration
+settings for a new event message</p>
+<dl class="attribute">
+<dt id="app.objects.Notification_Builder.html">
+<code class="descname">html</code><a class="headerlink" href="#app.objects.Notification_Builder.html" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; generated HTML new event notification</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.Notification_Builder.html_shell">
+<code class="descname">html_shell</code><a class="headerlink" href="#app.objects.Notification_Builder.html_shell" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; HTML before it is filled in with info for notification and user specifications</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.Notification_Builder.buildInspHTML">
+<code class="descname">buildInspHTML</code><span class="sig-paren">(</span><em>shakemap</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Notification_Builder.buildInspHTML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the HTML notification using the html_shell_insp.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shakemap</strong> (<em>ShakeMap</em>) &#8211; ShakeMap object for the notification being created</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.Notification_Builder.buildNewEventHTML">
+<code class="descname">buildNewEventHTML</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Notification_Builder.buildNewEventHTML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the HTML notification using the html_shell.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event</em>) &#8211; Event object for the notification being created</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="app.objects.Notification_Builder.get_temp_dir">
+<code class="descname">get_temp_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.Notification_Builder.get_temp_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine where the template directory is</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The absolute path the the template directory</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="app.objects.Point">
 <em class="property">class </em><code class="descclassname">app.objects.</code><code class="descname">Point</code><a class="headerlink" href="#app.objects.Point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keeps track of shaking data associated with a location. A list of
@@ -386,6 +449,24 @@ variable. Also makes a list of the earthquakes&#8217; IDs</p>
 <dd><p><em>int</em> &#8211; Which port to use for proxy</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="app.objects.SC.server_name">
+<code class="descname">server_name</code><a class="headerlink" href="#app.objects.SC.server_name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; What the admin chooses to call the instance</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.server_dns">
+<code class="descname">server_dns</code><a class="headerlink" href="#app.objects.SC.server_dns" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; How the instance is accessed</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="app.objects.SC.software_version">
+<code class="descname">software_version</code><a class="headerlink" href="#app.objects.SC.software_version" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> &#8211; Implemented pyCast software</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="app.objects.SC.get_conf_dir">
 <code class="descname">get_conf_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#app.objects.SC.get_conf_dir" title="Permalink to this definition">¶</a></dt>
@@ -396,7 +477,7 @@ variable. Also makes a list of the earthquakes&#8217; IDs</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The absolute path the the conf directory</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
 </tbody>
 </table>
@@ -441,6 +522,16 @@ input from user data</p>
 <dd><p>Will return a float with the largest shaking in a specified
 region. If no grid points are found within the region, the
 region is made larger until a point is present</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">-1 if max shaking can&#8217;t be determined, otherwise shaking level</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
