@@ -18,9 +18,10 @@ directory = delim.join(path) + delim
 
 db_name = 'shakecast.db'
 
-# logging from DB
-#logging.basicConfig(level=logging.DEBUG)
-#logging.getLogger('sqlalchemy.engine.base').setLevel(logging.DEBUG)
+def logging_on():
+    # logging from DB
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('sqlalchemy.engine.base').setLevel(logging.DEBUG)
 
 # SETUP DATABASE
 engine = create_engine('sqlite:///%s%s' % (directory, db_name))

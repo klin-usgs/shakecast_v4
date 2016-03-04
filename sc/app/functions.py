@@ -555,8 +555,17 @@ def import_facility_xml(xml_file=''):
                            and should contain info on error}
     '''
     session = Session()
+    #groups = session.query(Group).all()
+    fac_import_lst = []
+    fac_delete_lst = []
     
-    groups = session.query(Group).all()
+    fac_id = (session.query(Facility.shakecast_id,
+                                func.max(Facility.shakecast_id))
+                            .first()[0])
+    if fac_id:
+        fac_id += 1
+    else:
+        fac_id = 1
     
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -588,6 +597,10 @@ def import_facility_xml(xml_file=''):
         red = -1
         red_beta = -1
         red_metric = ''
+        lon_min = -1
+        lon_max = 1
+        lat_min = -1
+        lat_max = 1
         
         for child in fac:
             if child.tag == 'EXTERNAL_FACILITY_ID':
@@ -658,53 +671,69 @@ def import_facility_xml(xml_file=''):
                                 red_beta = float(child3.text)
         
         # check for an existing facility with this ID
-        existing = (session.query(Facility)
-                            .filter(Facility.facility_id == facility_id)
-                            .filter(Facility.component == component)
-                            .filter(Facility.component_class == component_class)
-                            .all())
-        if existing:
-            [session.delete(f) for f in existing]
-            
-        # determine if we can add to session or not
-        if not facility_id:
-            # don't add to session and add to error message
-            continue
+        #existing = (session.query(Facility)
+        #                    .filter(Facility.facility_id == facility_id)
+        #                    .filter(Facility.component == component)
+        #                    .filter(Facility.component_class == component_class)
+        #                    .all())
+        #if existing:
+        #    fac_delete_lst += existing
+        
         if not component:
             component = 'system'
         if not component_class:
             component_class = 'system'
+            
+        stmt = (select([Facility.__table__.c.shakecast_id])
+                        .where(and_(Facility.__table__.c.facility_id == facility_id,
+                                    Facility.__table__.c.component == component,
+                                    Facility.__table__.c.component_class == component_class)))
+        result = engine.execute(stmt)
+        shakecast_id_res = [row for row in result]
         
-        # Create facility
-        f = Facility()
+        if not shakecast_id_res:
+            shakecast_id = fac_id
+            fac_id += 1
+        else:
+            shakecast_id = shakecast_id_res[0][0]
         
-        f.facility_id = facility_id
-        f.facility_type = facility_type
-        f.component = component
-        f.component_class = component_class
-        f.name = name
-        f.description = description
-        f.short_name = short_name
-        f.model = model
-        f.geom_type = geom_type
-        f.html = html
-        f.geom = geom
-        f.grey = grey
-        f.grey_beta = grey_beta
-        f.grey_metric = grey_metric
-        f.green = green
-        f.green_beta = green_beta
-        f.green_metric = green_metric
-        f.yellow = yellow
-        f.yellow_beta = yellow_beta
-        f.yellow_metric = yellow_metric
-        f.orange = orange
-        f.orange_beta = orange_beta
-        f.orange_metric = orange_metric
-        f.red = red
-        f.red_beta = red_beta
-        f.red_metric = red_metric
-        f.metric = metric
+        f = {'facility_id': facility_id,
+             'facility_type': facility_type,
+             'component': component,
+             'component_class': component_class,
+             'name': name,
+             'description': description,
+             'short_name': short_name,
+             'model': model,
+             'geom_type': geom_type,
+             'html': html,
+             'geom': geom,
+             'grey': grey,
+             'grey_beta': grey_beta,
+             'grey_metric': grey_metric,
+             'green': green,
+             'green_beta': green_beta,
+             'green_metric': green_metric,
+             'yellow': yellow,
+             'yellow_beta': yellow_beta,
+             'yellow_metric': yellow_metric,
+             'orange': orange,
+             'orange_beta': orange_beta,
+             'orange_metric': orange_metric,
+             'red': red,
+             'red_beta': red_beta,
+             'red_metric': red_metric,
+             'metric': metric,
+             '_shakecast_id': shakecast_id,
+             'lon_min': lon_min,
+             'lon_max': lon_max,
+             'lat_min': lat_min,
+             'lat_max': lat_max}
+        
+        # determine if we can add to session or not
+        if not facility_id:
+            # don't add to session and add to error message
+            continue
         
         if geom_type and geom:
             # manipulate geometry
@@ -714,10 +743,10 @@ def import_facility_xml(xml_file=''):
                 lat = float(point[1])
                 elev = float(point[2])
                 
-                f.lon_min = lon - .01
-                f.lon_max = lon + .01
-                f.lat_min = lat - .01
-                f.lat_max = lat + .01
+                f['lon_min'] = lon - .01
+                f['lon_max'] = lon + .01
+                f['lat_min'] = lat - .01
+                f['lat_max'] = lat + .01
                 
             elif geom_type == 'POLYGON':
                 points = geom.split(';').split(',')
@@ -725,18 +754,57 @@ def import_facility_xml(xml_file=''):
                 lats = [pnt[1] for pnt in points]
                 elevs = [pnt[2] for pnt in points]
                 
-                f.lon_min = min(lons)
-                f.lon_max = max(lons)
-                f.lat_min = min(lats)
-                f.lat_max = max(lats)
+                f['lon_min'] = min(lons)
+                f['lon_max'] = max(lons)
+                f['lat_min'] = min(lats)
+                f['lat_max'] = max(lats)
                 
             elif geom_type == 'POLYLINE':
                 pass
-            
-        session.add(f)
+    
+        fac_import_lst += [f]
+    
+    stmt = (Facility.__table__.insert()
+                .values(facility_id=bindparam('facility_id'),
+                        facility_type=bindparam('facility_type'),
+                        component=bindparam('component'),
+                        component_class=bindparam('component_class'),
+                        name=bindparam('name'),
+                        description=bindparam('description'),
+                        short_name=bindparam('short_name'),
+                        model=bindparam('model'),
+                        geom_type=bindparam('geom_type'),
+                        html=bindparam('html'),
+                        grey=bindparam('grey'),
+                        grey_beta=bindparam('grey_beta'),
+                        grey_metric=bindparam('grey_metric'),
+                        green=bindparam('green'),
+                        green_beta=bindparam('green_beta'),
+                        green_metric=bindparam('green_metric'),
+                        yellow=bindparam('yellow'),
+                        yellow_beta=bindparam('yellow_beta'),
+                        yellow_metric=bindparam('yellow_metric'),
+                        orange=bindparam('orange'),
+                        orange_beta=bindparam('orange_beta'),
+                        orange_metric=bindparam('orange_metric'),
+                        red=bindparam('red'),
+                        red_beta=bindparam('red_beta'),
+                        red_metric=bindparam('red_metric'),
+                        metric=bindparam('metric'),
+                        shakecast_id=bindparam('_shakecast_id'),
+                        lon_min=bindparam('lon_min'),
+                        lon_max=bindparam('lon_max'),
+                        lat_min=bindparam('lat_min'),
+                        lat_max=bindparam('lat_max'))
+    )
+    
+    stmt = str(stmt).replace('INSERT', 'INSERT OR REPLACE')
+    if fac_import_lst:
+        engine.execute(stmt, fac_import_lst)
+    
+    session.flush()
     add_facs_to_groups(session=session)
     session.commit()
-    
     Session.remove()
     
     log_message = ''
@@ -1002,7 +1070,6 @@ def add_facs_to_groups(session=None):
     Returns:
         None
     '''
-    
     groups = session.query(Group).all()
     for group in groups:
         group.facilities = (session.query(Facility)
