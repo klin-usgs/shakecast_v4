@@ -11,6 +11,7 @@ if path not in sys.path:
     sys.path += [path]
 from app.functions import *
 from app.task import Task
+import web_server
 
 class TestProductGrabber(unittest.TestCase):
     '''
@@ -141,7 +142,18 @@ class TestFull(unittest.TestCase):
     '''
     Test the individual ShakeCast functions
     '''
-    def step1_createUser(self):
+    def step01_createUser(self):
+        session = Session()
+        user = User()
+        user.username = 'test_user'
+        user.email = self.email
+        user.user_type = 'USER'
+        user.group_string = 'GLOBAL'
+        session.add(user)
+        session.commit()
+        Session.remove()
+        
+    def step02_createAdminUser(self):
         session = Session()
         user = User()
         user.username = 'test_user'
@@ -152,7 +164,7 @@ class TestFull(unittest.TestCase):
         session.commit()
         Session.remove()
         
-    def step2_createGroup(self):
+    def step03_createGroup(self):
         session = Session()
         group = Group()
         group.name = 'GLOBAL'
@@ -185,20 +197,20 @@ class TestFull(unittest.TestCase):
         session.commit()
         Session.remove()
         
-    def step3_addUsersToGroups(self):
+    def step04_addUsersToGroups(self):
         session = Session()
         add_users_to_groups(session=session)
         session.commit()
         Session.remove()
         
-    def step4_geoJSON(self):
+    def step05_geoJSON(self):
         '''
         Test run of geo_json
         '''
         data = geo_json()
         self.assertEqual(data['error'], '')
         
-    def step5_createFacility(self):
+    def step06_createFacility(self):
         session = Session()
         sm = session.query(ShakeMap).first()
         if sm:
@@ -210,17 +222,17 @@ class TestFull(unittest.TestCase):
         else:
             print '\nNo ShakeMaps to test facility processing'
     
-    def step6_addFacsToGroups(self):
+    def step07_addFacsToGroups(self):
         session = Session()
         add_facs_to_groups(session=session)
         session.commit()
         Session.remove()
         
-    def step7_checkNew(self):
+    def step08_checkNew(self):
         data = check_new()
         self.assertEqual(data['error'], '')
     
-    def step8_checkEvents(self):
+    def step09_checkEvents(self):
         session = Session()
         events = session.query(Event).all()
         for event in events:
@@ -235,7 +247,7 @@ class TestFull(unittest.TestCase):
                     
         Session.remove()
         
-    def step9_checkShakeMaps(self):
+    def step10_checkShakeMaps(self):
         session = Session()
         shakemaps = session.query(ShakeMap).all()
         for shakemap in shakemaps:
@@ -449,7 +461,83 @@ class TestImport(unittest.TestCase):
         if failed is True:
             # fail the test with the accumulated exception message
             self.fail(fail_message)
+            
+class TestWeb(unittest.TestCase):
+    '''
+    Test functions for the Flask server
+    '''
+    def step01_setUp(self):
+        self.app = web_server.app.test_client()
         
+    def step02_noUser(self):
+        resp = self.app.get('/')
+        self.assertEqual(resp.status, '302 FOUND')
+        
+    def step02_logIn(self):
+        login = self.login('Ex1', 'pass')
+        
+    def step03_RegUserHome(self):
+        resp = self.app.get('/', follow_redirects=True)
+        self.assertIn('HOME', resp.data)
+        
+    def step04_RegUserEqs(self):
+        resp = self.app.get('/earthquakes', follow_redirects=True)
+        self.assertIn('Earthquakes', resp.data)
+        
+    def step05_RegUserAdmin(self):
+        resp = self.app.get('/admin')
+        
+        
+    def login(self, username, password):
+        return self.app.post('/login', data=dict(
+            username=username,
+            password=password
+        ), follow_redirects=True)
+    
+    def logout(self):
+        return self.app.get('/logout', follow_redirects=True)
+    
+    def steps(self):
+        '''
+        Generates the step methods from their parent object
+        '''
+        for name in sorted(dir(self)):
+            if name.startswith('step'):
+                yield name, getattr(self, name)
+        
+    def test_steps(self):
+        '''
+        Run the individual steps associated with this test
+        '''
+        # Create a flag that determines whether to raise an error at
+        # the end of the test
+        failed = False
+        
+        # An empty string that the will accumulate error messages for 
+        # each failing step
+        fail_message = ''
+        for name, step in self.steps():
+            try:
+                step()
+            except Exception as e:
+                # A step has failed, the test should continue through
+                # the remaining steps, but eventually fail
+                failed = True
+                
+                # get the name of the method -- so the fail message is
+                # nicer to read :)
+                name = name.split('_')[1]
+                # append this step's exception to the fail message
+                fail_message += "\n\nFAIL: {}\n {} failed ({}: {})".format(name,
+                                                                           step,
+                                                                           type(e),
+                                                                           e)
+        
+        # check if any of the steps failed
+        if failed is True:
+            # fail the test with the accumulated exception message
+            self.fail(fail_message)
+
 
 def cg():
     session = Session()
